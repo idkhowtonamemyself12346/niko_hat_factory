@@ -222,7 +222,11 @@ while running:
                     if i.xpos == xpos and i.ypos == ypos:
                         del j[j.index(i)]
 
-    if counter%move_delay == 0:
+    dt = clock.tick(60) / 1000.0
+    simulation_timer += dt
+    while simulation_timer >= simulation_interval:
+        simulation_timer -= simulation_interval
+        moves = []
         for belt in belts:
             move = belt.item_move()
             if move is not None:
@@ -230,11 +234,11 @@ while running:
                 moves.append((item, destination))
         for gen in gens:
             gen.generate_item()
-        for i in collectors:
-            if i.collect_item():
+        for collector in collectors:
+            if collector.collect_item():
                 money += 1
         for item, (new_x, new_y) in moves:
-            occupied = any((other.xpos, other.ypos) == (new_x, new_y) for other in items)
+            occupied = any(other is not item and (other.xpos, other.ypos) == (new_x, new_y) for other in items)
             if not occupied and not generator_occupies(new_x, new_y):
                 dx = new_x - item.xpos
                 dy = new_y - item.ypos
@@ -268,7 +272,6 @@ while running:
     text_surface = money_text.render(f"you have {money} pancakes", False, (255, 255, 255))
     screen.blit(text_surface, (quarter_grid_size, 0))
     pygame.display.flip()
-    clock.tick(60)
     grid_state = grid_state%2
     add_rectangle = True
     add_item = True

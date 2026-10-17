@@ -82,10 +82,6 @@ class Generator(Rectangle):
             half_grid_size, half_grid_size,
             0, 0, (255, 0, 0)))
         return True
-def update_money():
-    global money
-    money += 1
-    print(money)
 class Collector(Rectangle):
     global money
     def __init__(self, xposition, yposition, width, height, offsetx, offsety, color):
