@@ -6,7 +6,7 @@ global money
 try:
     appdata_path = os.environ['LOCALAPPDATA']
 except KeyError:
-    appdata_path = "~/"
+    appdata_path = Path.home()
 t1 = threading.Thread(target=controls.show_window, daemon=True)
 t1.start()
 pos = pygame.mouse.get_pos()
