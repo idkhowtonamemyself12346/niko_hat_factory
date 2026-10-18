@@ -1,8 +1,12 @@
 from classes import *
 from pathlib import Path
-import sys, threading, controls, json
+import sys, threading, controls, json, os
 global money
 
+try:
+    appdata_path = os.environ['LOCALAPPDATA']
+except KeyError:
+    appdata_path = "~/"
 t1 = threading.Thread(target=controls.show_window, daemon=True)
 t1.start()
 pos = pygame.mouse.get_pos()
@@ -15,7 +19,8 @@ item_path = BASE_DIR / "assets" / "item" / "niko_hat.png"
 selector_path = BASE_DIR / "assets" / "selector" / "selector.png"
 gen_path = BASE_DIR / "assets" / "generator" / "gen.png"
 gen2_path = BASE_DIR / "assets" / "generator" / "gen2.png"
-save_path = BASE_DIR / "save"
+save_path = f"{appdata_path}/.NikoHat/save"
+Path(save_path).mkdir(parents=True, exist_ok=True)
 pygame.init()
 pygame.font.init()
 money_text = pygame.font.Font(font_path, 32)
@@ -32,27 +37,43 @@ selector_png = pygame.image.load(selector_path)
 gen_png = pygame.image.load(gen_path)
 gen2_png = pygame.image.load(gen2_path)
 Belt.load_frames(belt_sheet, frame_width=32, frame_height=32, frame_count=16)
-with open(save_path / "gen.json", "r") as file:
-    data = json.load(file)
-for i in data:
-    gens.append(Generator(data.get(i)[0], data.get(i)[1], grid_size, grid_size,0,0,(255,255,255),data.get(i)[2]))
+try:
+    with open(f"{save_path}/gen.json", "r") as file:
+        data = json.load(file)
+    for i in data:
+        gens.append(Generator(data.get(i)[0], data.get(i)[1], grid_size, grid_size,0,0,(255,255,255),data.get(i)[2]))
+except FileNotFoundError:
+    path = Path(f"{save_path}/gen.json")
+    path.write_text("{}")
 
-with open(save_path / "collector.json", "r") as file:
-    data = json.load(file)
-for i in data:
-    collectors.append(Collector(data.get(i)[0], data.get(i)[1], grid_size, grid_size,0,0,(0,255,0)))
+try:
+    with open(f"{save_path}/collector.json", "r") as file:
+        data = json.load(file)
+    for i in data:
+        collectors.append(Collector(data.get(i)[0], data.get(i)[1], grid_size, grid_size,0,0,(0,255,0)))
+except FileNotFoundError:
+    path = Path(f"{save_path}/collector.json")
+    path.write_text("{}")
 
-with open(save_path / "belt.json", "r") as file:
-    data = json.load(file)
-for i in data:
-    belts.append(Belt(data.get(i)[0], data.get(i)[1], grid_size, grid_size,0,0,(0,255,0), data.get(i)[2]))
+try:
+    with open(f"{save_path}/belt.json", "r") as file:
+        data = json.load(file)
+    for i in data:
+        belts.append(Belt(data.get(i)[0], data.get(i)[1], grid_size, grid_size,0,0,(0,255,0), data.get(i)[2]))
+except FileNotFoundError:
+    path = Path(f"{save_path}/belt.json")
+    path.write_text("{}")
 
-with open(save_path / "money.json", "r") as file:
-    data = json.load(file)
-    if not data:
-        money = 0
-    else:
-        money = data.get("money")
+try:
+    with open(f"{save_path}/money.json", "r") as file:
+        data = json.load(file)
+        if not data:
+            money = 0
+        else:
+            money = data.get("money")
+except FileNotFoundError:
+    path = Path(f"{save_path}/money.json")
+    path.write_text("{}")
 for column in range((screen_width-screen_width%grid_size)//grid_size):
     for row in range((screen_height-screen_height%grid_size)//grid_size):
         grid.append(Rectangle((row-1)*grid_size*2+grid_offset, column*grid_size, grid_size, grid_size,0,0,(80,80,80)))
@@ -301,7 +322,7 @@ while running:
     add_gen = True
     counter += 1
 pygame.quit()
-with open(save_path / "gen.json", "r") as file:
+with open(f"{save_path}/gen.json", "r") as file:
     data = json.load(file)
 counter = 0
 if not gens:
@@ -310,10 +331,10 @@ else:
     for gen in gens:
         data[counter] = [gen.xpos, gen.ypos, gen.direction]
         counter += 1
-with open(save_path / "gen.json", "w") as file:
+with open(f"{save_path}/gen.json", "w") as file:
     json.dump(data, file)
 
-with open(save_path / "collector.json", "r") as file:
+with open(f"{save_path}/collector.json", "r") as file:
     data = json.load(file)
 counter = 0
 if not collectors:
@@ -322,10 +343,10 @@ else:
     for collector in collectors:
         data[counter] = [collector.xpos, collector.ypos]
         counter += 1
-with open(save_path / "collector.json", "w") as file:
+with open(f"{save_path}/collector.json", "w") as file:
     json.dump(data, file)
 
-with open(save_path / "belt.json", "r") as file:
+with open(f"{save_path}/belt.json", "r") as file:
     data = json.load(file)
 counter = 0
 if not belts:
@@ -334,9 +355,9 @@ else:
     for belt in belts:
         data[counter] = [belt.xpos, belt.ypos, belt.direction]
         counter += 1
-with open(save_path / "belt.json", "w") as file:
+with open(f"{save_path}/belt.json", "w") as file:
     json.dump(data, file)
 
-with open(save_path / "money.json", "w") as file:
+with open(f"{save_path}/money.json", "w") as file:
     data = {"money": money}
     json.dump(data, file)
