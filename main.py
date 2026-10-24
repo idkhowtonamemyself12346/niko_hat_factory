@@ -1,3 +1,5 @@
+import pygame.mixer_music
+
 from classes import *
 from pathlib import Path
 import sys, threading, controls, json, os
@@ -19,9 +21,11 @@ item_path = BASE_DIR / "assets" / "item" / "niko_hat.png"
 selector_path = BASE_DIR / "assets" / "selector" / "selector.png"
 gen_path = BASE_DIR / "assets" / "generator" / "gen.png"
 gen2_path = BASE_DIR / "assets" / "generator" / "gen2.png"
+music_path = BASE_DIR / "assets" / "music" / "scheming-weasel.mp3"
 save_path = f"{appdata_path}/.NikoHat/save"
 Path(save_path).mkdir(parents=True, exist_ok=True)
 pygame.init()
+pygame.mixer.init()
 pygame.font.init()
 money_text = pygame.font.Font(font_path, 32)
 screen = pygame.display.set_mode((512, 512))
@@ -37,6 +41,7 @@ selector_png = pygame.image.load(selector_path)
 gen_png = pygame.image.load(gen_path)
 gen2_png = pygame.image.load(gen2_path)
 Belt.load_frames(belt_sheet, frame_width=32, frame_height=32, frame_count=16)
+pygame.mixer.Sound(music_path).play(-1)
 try:
     with open(f"{save_path}/gen.json", "r") as file:
         data = json.load(file)
